@@ -1,0 +1,11 @@
+/spec/reports/
+/tmp/
+.env
+/vendor/bundle
+Gemfile.lock
+.ruby-version
+.serverless
+node_modules
+.dynamodb/
+log/*
+!log/.keep

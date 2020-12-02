@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-offline": "^6.8.0",
+    "serverless-offline-ssm": "^5.2.0",
+    "serverless-ruby-package": "^1.4.0"
+  },
+  "scripts": {
+    "start": "sls offline start",
+    "init": "sls dynamodb install && bundle install --standalone",
+    "deploy:dev": "sls deploy --stage dev",
+    "deploy:prod": "sls deploy --stage prod"
+  }
+}

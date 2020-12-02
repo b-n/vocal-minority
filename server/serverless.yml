@@ -1,0 +1,127 @@
+service: vocal-minority
+configValidationMode: error
+useDotenv: true
+
+frameworkVersion: '2'
+
+plugins:
+  - serverless-ruby-package
+  - serverless-dynamodb-local
+  - serverless-offline-ssm
+  - serverless-offline
+
+custom:
+  region: ${opt:region, self:provider.region}
+  stage: ${opt:stage, self:provider.stage}
+  serverless-offline:
+  serverless-offline-ssm:
+    stages: [ dev ]
+  dynamodb:
+    stages:
+      - dev
+    seed:
+      domain:
+        sources:
+          - table: ${self:provider.environment.DB_TABLE_USERS}
+            sources: [ './seed/users.json' ]
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+      seed: true
+
+package:
+  include:
+    - handler.rb
+    - lib/**
+
+provider:
+  name: aws
+  runtime: ruby2.7
+  stage: dev
+  region: eu-central-1
+  environment:
+    DB_TABLE_USERS: ${self:service.name}-${self:custom.stage}-user
+    GOOGLE_CLIENT_ID: ${ssm:/vocal-minority/${self:custom.stage}/googleClientId} 
+    GOOGLE_CLIENT_SECRET: ${ssm:/vocal-minority/${self:custom.stage}/googleClientSecret~true} 
+    APP_AUTH_REDIRECT_URI: 'http://localhost'
+  apiGateway:
+    shouldStartNameWithService: true
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+      Resource:
+        - "Fn::GetAtt": [ UsersTable, Arn ]
+        - "Fn::Join":
+          - '/'
+          - - "Fn::GetAtt": [ UsersTable, Arn ]
+            - "index"
+            - "authorizerId-index"
+
+functions:
+  auth:
+    handler: handler.auth_auth
+  auth-token:
+    handler: handler.auth_token
+    events:
+      - http:
+          method: get
+          path: auth/token
+          cors: true
+  auth-urls:
+    handler: handler.auth_urls
+    events:
+      - http:
+          method: get
+          path: auth/urls
+          cors: true
+  tweet-get:
+    handler: handler.tweet_get
+    events:
+      - http:
+          method: get
+          path: tweet
+          cors: true
+          authorizer: auth
+  tweet-post:
+    handler: handler.tweet_post 
+    events:
+      - http:
+          method: post
+          path: tweet/{id}
+          cors: true
+          authorizer: auth
+  pool-refresh:
+    handler: handler.tweet_pool_refresh 
+    events:
+      - schedule:
+          rate: rate(15 minutes)
+          enabled: false
+
+resources:
+  Resources:
+    UsersTable:
+      Type: "AWS::DynamoDB::Table"
+      DeletionPolicy: Retain
+      Properties:
+        TableName: ${self:provider.environment.DB_TABLE_USERS}
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: authorizerId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: authorizerId
+            KeySchema:
+              - AttributeName: authorizerId
+                KeyType: HASH
+            Projection:
+              ProjectionType: KEYS_ONLY

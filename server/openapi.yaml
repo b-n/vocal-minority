@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: Vocal Minority
+  description: 'API that the Vocal Minority Client uses to connect to the server'
+  contact:
+    email: nayben@gmail.com
+  license:
+    name: WTFPL
+    url: http://www.wtfpl.net/about/
+  version: 1.0.0
+
+servers:
+  - url: https://api.vocalminority.io/
+
+tags:
+  - name: tweet
+    description: Everything related to getting tweets to measure, and posting results
+  - name: auth
+    description: Everything regarding authentication
+
+paths:
+  /auth/token:
+    get:
+      tags: [ auth ]
+      description: 'Used to auth against vocal_minority. This is used for call backs form authorizers and also used to generate refresh tokens'
+      parameters:
+        - name: grant_type
+          description: 'The type of code requested to be generated'
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [ 'authorizatio_code', 'refresh_token' ]
+        - name: code
+          description: 'Either the authorization code from the authorizer, or the refresh token'
+          in: query
+          required: true
+          schema:
+            type: string
+            example: 'authcode'
+        - name: state
+          description: 'the authorizer name (twitter/google supported). Required if grant_type = authorization_code'
+          in: query
+          schema:
+            type: string
+            enum: [ google, twitter ]
+            example: 'twitter'
+        - name: redirect_uri
+          description: 'The redirect_uri passed back from the authorizer. This is used during the authorization_code grant_type'
+          in: query
+          schema:
+            type: string
+            example: 'https://vocalminority.io/'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /tweets:
+    get:
+      tags: [ tweet ]
+      description: 'Get tweet(s) from the pool to measure'
+      security: 
+       - jwtBearer: []
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tweets'
+  /tweets/{id}:
+    post:
+      tags: [ tweet ]
+      description: 'Post a score for the particular tweet'
+      parameters:
+        - $ref: '#/components/parameters/TweetID'
+      security: 
+       - jwtBearer: []
+      requestBody:
+        description: 'The tweet to post a score for'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tweet'
+      responses:
+        '200':
+          description: 'Success'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tweet'
+        '400':
+          $ref: '#/components/responses/BadInput'
+        '404':
+          $ref: '#/components/responses/NotFound'
+components:
+  parameters:
+    TweetID:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+  schemas:
+    Auth:
+      type: object
+      properties:
+        token_type:
+          type: string
+          example: 'Bearer'
+        access_tokne:
+          type: string
+          example: 'SomeSecretAccessToken'
+        refresh_token:
+          type: string
+          example: 'SomeSecretRefreshToken'
+        expires_in:
+          type: integer
+          example: 3600
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: 'A descriptive error message'
+        errorCode:
+          type: string
+          example: 'ERROR_CODE'
+    Tweets:
+      type: array
+      items:
+        $ref: '#/components/schemas/Tweet'
+    Tweet:
+      type: object
+      required: [ id, score ]
+      properties:
+        id:
+          type: string
+        text:
+          type: string
+          example: 'hello world'
+        score:
+          type: integer
+  responses:
+    BadInput:
+      description: 'Bad input'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: 'Forbidden'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: 'Item not found'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: 'Unauthorized to perform this action'
+  securitySchemes:
+    jwtBearer:
+      type: 'http'
+      scheme: bearer
+      bearerFormat: JWT
