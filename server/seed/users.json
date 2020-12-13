@@ -1,6 +1,7 @@
 [
   {
     "id": "123",
-    "authorizer_id": "google-123123"
+    "created_at": 123123123123,
+    "refresh_token": ""
   }
 ]

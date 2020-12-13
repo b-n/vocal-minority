@@ -16,11 +16,11 @@ def auth_auth(event:, context:)
 end
 
 def auth_token(event:, context:)
-  Requests::Auth::Token.process(event: event, context: context)
+  Requests::Auth::Token.new.process(event: event, context: context)
 end
 
 def auth_urls(event:, context:)
-  success payload: { google: Google::Auth.auth_url }.to_json
+  success payload: { google: Google::Auth.new.auth_url }.to_json
 end
 
 def tweet_get(event:, context:)

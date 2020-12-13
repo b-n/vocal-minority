@@ -18,14 +18,13 @@ A Ruby AWS Serverless project. Why ruby? Why not!
 
 - [ ] `GET /tweet`
 - [ ] `POST /tweet/{id}`
-- [ ] `GET /auth/token` IN PROGRESS
+- [X] `GET /auth/token` IN PROGRESS
 - [x] `GET /auth/urls`
 
 ## TODO
 
 - [ ] Tests
 - [x] Google oauth
-- [ ] Google client (get userid etc) IN PROGRESS
 - [ ] Twitter authorizer
 - [ ] Twitter client (get userid etc)
 - [ ] Twitter client (tweet methods)

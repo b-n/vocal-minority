@@ -3,7 +3,7 @@
 module Factory
   module Auth
     def self.generate(authorizer)
-      Object.const_get("::#{authorizer.capitalize}::Auth")
+      Object.const_get("::#{authorizer.capitalize}::Auth").new
     end
   end
 end

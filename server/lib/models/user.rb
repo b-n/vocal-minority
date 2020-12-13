@@ -1,18 +1,41 @@
 # frozen_string_literal: true
 
-require 'securerandom'
+require 'digest/sha1'
 
 class User
   include ::Jaysun
 
-  attr_accessor :id, :authorizer_id
-  json_fields :id, :authorizer_id
+  attr_accessor :id, :created_at, :refresh_token
+  json_fields :id, :created_at
 
-  def save
-    @id = SecureRandom.uuid if @id.nil?
-    true
+  def initialize(options = {})
+    @id = options.fetch('id', nil)
+    @created_at = options.fetch('created_at', Time.now.to_i)
+    @refresh_token = options.fetch('refresh_token', '')
   end
 
+  def save
+    result = Dynamo.put_item({
+      item: dynamo_item,
+      table_name: ENV['DB_TABLE_USERS']
+    })
+    self
+  end
+
+  def valid_refresh_token?(token)
+    token == @refresh_token
+  end
+
+  private
+
+  def dynamo_item
+    {
+      id: @id,
+      created_at: @created_at,
+      refresh_token: @refresh_token
+    }
+  end
+  
   class << self 
     def find(id)
       result = Dynamo.query({
@@ -22,32 +45,26 @@ class User
           ':v1' => id
         }
       })
-
-      create_user_from_item result.items[0]
+      return nil if result.count == 0
+      ::User.new(result.items[0])
     end
 
-    def find_by_authorizer(authorizer:, id:)
-      result = Dynamo.query({
-        table_name: ENV['DB_TABLE_USERS'],
-        index_name: 'authorizerId',
-        key_condition_expression: 'authorizerId = :v1',
-        expression_attribute_values: {
-          ':v1' => "#{authorizer}-#{id}"
-        }
-      })
+    def find_or_create_by_authorizer_id(authorizer, id)
+      user = find_by_authorizer_id(authorizer, id) 
+      return user unless user.nil?
 
-      create_user_from_item result.items[0]
+      id = authorizer_hash(authorizer, id)
+      User.new(id: id).save
+    end
+
+    def find_by_authorizer_id(authorizer, id)
+      find(authorizer_hash(authorizer, id))
     end
 
     private
 
-    def create_user_from_item(payload)
-      return nil unless payload
-
-      User.new.tap do |u|
-        u.id = payload['id']
-        u.authorizer_id = payload['authorizer_id']
-      end
+    def authorizer_hash(authorizer, id)
+      Digest::SHA1.hexdigest("#{authorizer}-#{id}")
     end
   end
 end

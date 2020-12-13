@@ -12,3 +12,10 @@ def unauthorized
     statusCode: 403
   }
 end
+
+def bad_input(error)
+  {
+    statusCode: 400,
+    body: { error: error }.to_json
+  }
+end

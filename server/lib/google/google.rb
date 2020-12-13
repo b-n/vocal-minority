@@ -2,5 +2,4 @@
 
 module Google
   autoload(:Auth, 'google/auth')
-  autoload(:Client, 'google/client')
 end

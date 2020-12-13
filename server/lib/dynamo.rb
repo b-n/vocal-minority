@@ -11,6 +11,11 @@ class Dynamo
       client.query params
     end
 
+    def put_item(params)
+      Log.info(params) if DEBUG
+      client.put_item params
+    end
+
     private
 
     def client
