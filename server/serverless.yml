@@ -45,7 +45,7 @@ provider:
     JWT_SECRET: ${ssm:/vocal-minority/${self:custom.stage}/jwtSecret~true}
     GOOGLE_CLIENT_ID: ${ssm:/vocal-minority/${self:custom.stage}/googleClientId} 
     GOOGLE_CLIENT_SECRET: ${ssm:/vocal-minority/${self:custom.stage}/googleClientSecret~true} 
-    APP_AUTH_REDIRECT_URI: 'http://localhost'
+    APP_AUTH_REDIRECT_URI: 'http://localhost:3001/auth/callback'
   apiGateway:
     shouldStartNameWithService: true
   iamRoleStatements:
