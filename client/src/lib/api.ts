@@ -73,14 +73,13 @@ class Client {
   }
 
   async call<T>(url: URL, options?: RequestInit): Promise<T> {
-    return fetch(url.toString(), options)
+    return fetch(url.toString(), { mode: 'cors', ...options })
       .then(this.parseErrors)
       .then(response => response.json())
       .then(data => data as T)
   }
 
   storeTokens(response: TokenResponse): TokenResponse {
-    console.log(this, response)
     this.accessToken = response.access_token
     this.refreshToken = response.refresh_token
     return response
