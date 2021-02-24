@@ -12,7 +12,7 @@ interface TokenResponse {
 class APIClientBadInput extends Error {}
 class APIClientServerError extends Error {}
 
-const BASE_URL = 'http://localhost:3000/dev'
+const BASE_URL = process.env.REACT_APP_SERVER_URI
 const PATHS = {
   authUrls: `${BASE_URL}/auth/urls`,
   authToken: `${BASE_URL}/auth/token`,

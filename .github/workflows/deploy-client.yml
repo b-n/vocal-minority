@@ -1,0 +1,45 @@
+name: Deploy front end client 
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'client/**'
+      - '!client/*.md'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - name: checkout
+        uses: actions/checkout@master
+      - name: use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install, lint, and build
+        run: |
+          npm ci
+          npm run lint
+          REACT_APP_SERVER_URI=${{ secrets.PRODUCTION_SERVER_URI }} npm run build
+      - name: upload to s3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.PRODUCTION_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SOURCE_DIR: 'build'
+      - name: invalidate cf cache
+        uses: chetan/invalidate-cloudfront-action@master
+        env:
+          DISTRIBUTION: ${{ secrets.PRODUCTION_CF_DISTRIBUTION }}
+          PATHS: '/index.html'
+          AWS_REGION: 'us-east-1'
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
