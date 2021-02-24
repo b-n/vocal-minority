@@ -11,8 +11,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./client
     strategy:
       matrix:
         node-version: [12.x]
@@ -24,11 +22,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: npm install, lint, and build
+        working-directory: ./client
         run: |
           npm ci
           npm run lint
           REACT_APP_SERVER_URI=${{ secrets.PRODUCTION_SERVER_URI }} npm run build
-        working-directory: ${{env.working-directory}}
       - name: upload to s3
         uses: jakejarvis/s3-sync-action@master
         with:
@@ -37,8 +35,7 @@ jobs:
           AWS_S3_BUCKET: ${{ secrets.PRODUCTION_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          SOURCE_DIR: 'build'
-        working-directory: ${{env.working-directory}}
+          SOURCE_DIR: 'client/build'
       - name: invalidate cf cache
         uses: chetan/invalidate-cloudfront-action@master
         env:
