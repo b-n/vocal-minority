@@ -10,6 +10,8 @@ module Requests
         token = parameters.fetch('token', nil)
         grant_type = parameters.fetch('grant_type', nil)
 
+        return bad_input 'invalid grant_type' if grant_type.nil?
+
         case grant_type.to_sym
         when :authorization_code
           authorization_code(code, state)
@@ -50,13 +52,15 @@ module Requests
       end
 
       def generate_tokens(user)
-        expires_in = 3600
-        refresh_token = ::Auth::JWT.generate({ user_id: user.id }, { exp: Time.now.to_i + 86400 * 365 }) 
+        expires_in = 45
+        exp = Time.now.utc.to_i + expires_in
+        access_token = ::Auth::JWT.generate({ user_id: user.id }, { exp: exp })
+        refresh_token = ::Auth::JWT.generate({ user_id: user.id }, { exp: Time.now.utc.to_i + 86400 * 365 }) 
         user.refresh_token = refresh_token
         user.save
 
         { 
-          access_token: ::Auth::JWT.generate({ user_id: user.id }, { exp: Time.now.to_i + expires_in }),
+          access_token: access_token,
           token_type: 'Bearer',
           expires_in: expires_in,
           refresh_token: refresh_token

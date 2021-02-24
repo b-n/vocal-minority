@@ -1,40 +1,60 @@
+import Box from '@material-ui/core/Box'
+import Paper from '@material-ui/core/Paper'
+import { makeStyles } from '@material-ui/core/styles'
 import React, { useState, useEffect } from 'react'
 
-import { Layout } from '../common'
+import Heading from 'src/components/Heading'
+import { useAPI } from 'src/stores/api'
 
-interface AuthURLProps {
-  name: string;
-  url: string;
-}
+import { AuthProviderButton, AuthProviderProps } from './AuthProvider'
 
-const AuthURL: React.FC<AuthURLProps> = ({ name, url }) => (
-  <a href={url} key={name}>{name}</a>
-)
+const useStyles = makeStyles({
+  loginWrapper: {
+    margin: '30px auto 0px auto',
+    width: '350px',
+    padding: '10px',
+  },
+  title: {
+    textAlign: 'center',
+    marginBottom: '0.5em',
+  },
+  buttonWrapper: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
+})
+
+const defaultProviders: Array<AuthProviderProps> = [
+  { name: 'google', url: '' },
+]
 
 const Login: React.FC = () => {
-  const [authURLs, setAuthURLs] = useState<JSX.Element[]>([])
+  const classes = useStyles()
+  const api = useAPI().client
+  const [authProviders, setAuthProviders] = useState<Array<AuthProviderProps>>(defaultProviders)
 
-  // TODO: Very hack, just POC
   useEffect(() => {
-    fetch('http://localhost:3000/dev/auth/urls')
-      .then(response => response.json())
+    api.getAuthURLS()
       .then(response => {
-        console.log(response)
-        setAuthURLs(
-          Object.keys(response).reduce((acc, cur: string) => {
-            acc.push((<AuthURL name={cur} url={response[cur]} />))
-            return acc
-          }, [] as JSX.Element[])
-        )
+        setAuthProviders(defaultProviders.map(provider => ({
+          ...provider,
+          url: response[provider.name],
+        })))
       })
-  }, [])
+  }, [api])
+
   return (
-    <Layout>
-      Magic
-      <div>
-        {authURLs && authURLs.map(url => url)}
-      </div>
-    </Layout>
+    <Paper className={classes.loginWrapper} elevation={5}>
+      <Heading className={classes.title}>Login</Heading>
+      <Box className={classes.buttonWrapper}>
+        {
+          authProviders && authProviders.filter(a => !!a.url).map(provider => (
+            <AuthProviderButton key={provider.name} {...provider} />
+          ))
+        }
+      </Box>
+    </Paper>
   )
 }
 

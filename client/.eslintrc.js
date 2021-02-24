@@ -6,9 +6,11 @@ module.exports = {
     es2020: true,
   },
   extends: [
+    'react-app',
+    'react-app/jest',
     'standard',
     'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended'
+    'plugin:react/recommended',
   ],
   settings: {
     react: {
@@ -52,29 +54,6 @@ module.exports = {
       'named': 'never',
       'asyncArrow': 'always',
     }],
-    '@typescript-eslint/naming-convention': [2,
-      { selector: 'default', format: ['camelCase'], leadingUnderscore: 'allow', trailingUnderscore: 'allow' },
-      { selector: 'variable', format: ['camelCase', 'PascalCase', 'UPPER_CASE', 'snake_case'], leadingUnderscore: 'allow', trailingUnderscore: 'allow' },
-      { selector: 'typeLike', format: ['PascalCase'] },
-      { selector: 'typeAlias', format: ['PascalCase', 'camelCase'] },
-      { selector: 'property', format: ['camelCase', 'snake_case'] },
-      { selector: 'function', format: ['camelCase', 'PascalCase'] },
-    ],
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/member-delimiter-style': [2, {
-      'multiline': {
-        delimiter: 'semi',
-      }
-    }],
-    '@typescript-eslint/no-empty-function': [1],
-    '@typescript-eslint/no-explicit-any': [0],
-    '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-unused-vars': [2, {
-      'argsIgnorePattern': '^_',
-      'varsIgnorePattern': '^_',
-    }],
-    '@typescript-eslint/no-unused-expressions': [2],
-    '@typescript-eslint/no-use-before-define': [2],
     'import/first': [2],
     'import/order': [2, {
       'groups': ['builtin', 'external', 'parent', 'sibling'],
@@ -83,4 +62,44 @@ module.exports = {
     }],
     'react/prop-types': [0],
   },
+  overrides: [
+    {
+      files: [ "**/*.ts?(x)"],
+      rules: {
+        '@typescript-eslint/naming-convention': [2,
+          { selector: 'default', format: ['camelCase'], leadingUnderscore: 'allow', trailingUnderscore: 'allow' },
+          { selector: 'variable', format: ['camelCase', 'PascalCase', 'UPPER_CASE', 'snake_case'], leadingUnderscore: 'allow', trailingUnderscore: 'allow' },
+          { selector: 'typeLike', format: ['PascalCase'] },
+          { selector: 'typeAlias', format: ['PascalCase', 'camelCase'] },
+          { 
+            selector: 'property',
+            filter: { regex: 'access_token|refresh_token|expires_in|token_type', match: true },
+            format: ['snake_case']
+          },
+          { 
+            selector: 'property',
+            filter: 'Authorization',
+            format: ['PascalCase']
+          },
+          { selector: 'property', format: ['camelCase'] },
+          { selector: 'function', format: ['camelCase', 'PascalCase'] },
+        ],
+        '@typescript-eslint/explicit-function-return-type': 'off',
+        '@typescript-eslint/member-delimiter-style': [2, {
+          'multiline': {
+            delimiter: 'semi',
+          }
+        }],
+        '@typescript-eslint/no-empty-function': [1],
+        '@typescript-eslint/no-explicit-any': [0],
+        '@typescript-eslint/no-non-null-assertion': 'off',
+        '@typescript-eslint/no-unused-vars': [2, {
+          'argsIgnorePattern': '^_',
+          'varsIgnorePattern': '^_',
+        }],
+        '@typescript-eslint/no-unused-expressions': [2],
+        '@typescript-eslint/no-use-before-define': [2],
+      }
+    }
+  ]
 }

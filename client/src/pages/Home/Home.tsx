@@ -1,11 +1,12 @@
 import React from 'react'
 
-import Layout from '../common/Layout'
+import Layout from 'src/pages/common/Layout'
 
 const Home: React.FC = () => {
   return (
     <Layout>
-      <div>Hello Home</div>
+      <div>Heading</div>
+      <div>Some Info</div>
     </Layout>
   )
 }

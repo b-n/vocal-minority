@@ -54,7 +54,7 @@ class User
       return user unless user.nil?
 
       id = authorizer_hash(authorizer, id)
-      User.new(id: id).save
+      User.new('id' => id).save
     end
 
     def find_by_authorizer_id(authorizer, id)

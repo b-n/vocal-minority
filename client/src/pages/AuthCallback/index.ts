@@ -1,4 +1,2 @@
 import AuthCallback from './AuthCallback'
-export {
-  AuthCallback
-}
+export default AuthCallback
