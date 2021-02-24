@@ -4,23 +4,20 @@ on:
   push:
     branches:
       - main
-    #paths:
-      #- 'client/**'
-      #- '!client/*.md'
+    paths:
+      - 'client/**'
+      - '!client/*.md'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
     steps:
       - name: checkout
         uses: actions/checkout@master
       - name: use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '12'
       - name: yarn install, lint, and build
         working-directory: ./client
         run: |
