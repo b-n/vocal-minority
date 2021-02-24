@@ -42,6 +42,7 @@ provider:
   region: eu-central-1
   environment:
     DB_TABLE_USERS: ${self:service.name}-${self:custom.stage}-user
+    AUTH_CALLBACK_URI: ${ssm:/vocal-minority/${self:custom.stage}/authCallbackUri}
     JWT_SECRET: ${ssm:/vocal-minority/${self:custom.stage}/jwtSecret~true}
     GOOGLE_CLIENT_ID: ${ssm:/vocal-minority/${self:custom.stage}/googleClientId} 
     GOOGLE_CLIENT_SECRET: ${ssm:/vocal-minority/${self:custom.stage}/googleClientSecret~true} 
