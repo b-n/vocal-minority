@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'client/**'
-      - '!client/*.md'
+    #paths:
+      #- 'client/**'
+      #- '!client/*.md'
 
 jobs:
   deploy:
@@ -24,9 +24,9 @@ jobs:
       - name: npm install, lint, and build
         working-directory: ./client
         run: |
-          npm ci
-          npm run lint
-          REACT_APP_SERVER_URI=${{ secrets.PRODUCTION_SERVER_URI }} npm run build
+          yarn install
+          yarn run lint
+          REACT_APP_SERVER_URI=${{ secrets.PRODUCTION_SERVER_URI }} yarn run build
       - name: upload to s3
         uses: jakejarvis/s3-sync-action@master
         with:
