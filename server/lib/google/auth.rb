@@ -32,7 +32,7 @@ module Google
         :client_secret => ENV['GOOGLE_CLIENT_SECRET'],
         :scope => 'email profile',
         :state => 'google',
-        :redirect_uri => ENV['APP_AUTH_REDIRECT_URI'],
+        :redirect_uri => ENV['AUTH_REDIRECT_URI'],
       )
     end
   end

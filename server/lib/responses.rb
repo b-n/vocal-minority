@@ -3,7 +3,11 @@
 def success(payload: nil)
   {
     statusCode: 200,
-    body: payload
+    body: payload,
+    headers: {
+      'Access-Control-Allow-Origin' => '*',
+      'Access-Control-Allow-Credentials'=> true,
+    }
   }
 end
 
