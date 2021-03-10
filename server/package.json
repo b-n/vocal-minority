@@ -1,4 +1,5 @@
 {
+  "license": "WTFPL",
   "devDependencies": {
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-offline": "^6.8.0",
