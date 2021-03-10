@@ -2,13 +2,13 @@ import React, { createContext, useContext, useState } from 'react'
 
 import { Client as APIClient } from '../lib/api'
 
-export interface APIState {
+interface APIState {
   initing: boolean;
   isAuthed: boolean;
   client: APIClient;
 }
 
-export interface APIMutations {
+interface APIMutations {
   checkAuthCode: (codeParam: string, stateParam: string) => Promise<void>;
 }
 

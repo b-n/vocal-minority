@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { useHistory, useLocation } from 'react-router-dom'
 
-import { useAPIMutations } from 'src/stores/api'
+import { useAPI, useAPIMutations } from 'src/stores/api'
 
 const AuthCallback: React.FC = () => {
+  const { isAuthed } = useAPI()
   const { checkAuthCode } = useAPIMutations()
   const history = useHistory()
   const [message, setMessage] = useState('Authorizing...')
   const searchParams = useLocation().search
 
   useEffect(() => {
+    if (isAuthed) {
+      history.push('/')
+      return
+    }
     const params = new URLSearchParams(searchParams)
     const state = params.get('state')
     const code = params.get('code')
@@ -23,7 +28,7 @@ const AuthCallback: React.FC = () => {
         setMessage('Authorized')
         history.push('/')
       })
-  }, [history, searchParams, checkAuthCode])
+  }, [searchParams, history, isAuthed, checkAuthCode])
 
   return (
     <div>{message}</div>
