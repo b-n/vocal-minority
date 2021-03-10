@@ -1,9 +1,7 @@
-# frozen_string_literal: true
-
-module Requests
+module Controllers
   module Auth
-    class Token
-      def process(event:, context:)
+    class Token < LambdaHandler
+      def get(event:, context:)
         parameters = event['queryStringParameters']
         code = parameters.fetch('code', nil)
         state = parameters.fetch('state', nil)
@@ -27,7 +25,7 @@ module Requests
       def authorization_code(code, state)
         return bad_input "requires code and state, received #{code} #{state}" if code.nil? || state.nil?
 
-        authorizer = Factory::Auth.generate(state)
+        authorizer = Factories::Auth.generate(state)
         return bad_input "invalid code #{code}" unless authorizer.valid_auth_code? code
 
         user = User.find_or_create_by_authorizer_id(authorizer.user_id, state)
@@ -48,14 +46,14 @@ module Requests
       end
 
       def verify_token(token)
-        ::Auth::JWT.validate(token)
+        Services::Auth.validate_jwt(token)
       end
 
       def generate_tokens(user)
         expires_in = 45
         exp = Time.now.utc.to_i + expires_in
-        access_token = ::Auth::JWT.generate({ user_id: user.id }, { exp: exp })
-        refresh_token = ::Auth::JWT.generate({ user_id: user.id }, { exp: Time.now.utc.to_i + 86400 * 365 }) 
+        access_token = Services::Auth.generate_jwt({ user_id: user.id }, { exp: exp })
+        refresh_token = Services::Auth.generate_jwt({ user_id: user.id }, { exp: Time.now.utc.to_i + 86400 * 365 }) 
         user.refresh_token = refresh_token
         user.save
 

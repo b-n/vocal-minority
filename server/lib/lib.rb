@@ -1,0 +1,6 @@
+autoload(:Dynamo, 'dynamo')
+autoload(:IAMPolicyGenerator, 'iam_policy_generator')
+autoload(:Jaysun, 'jaysun')
+autoload(:LambdaHandler, 'lambda_handler')
+autoload(:Log, 'log')
+autoload(:Google, 'google')
