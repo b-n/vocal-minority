@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require 'logger'
+require "logger"
 
 class Log
   class << self
-
     def info(*args)
       logger.info(args)
     end
@@ -12,8 +11,7 @@ class Log
     private
 
     def logger
-      @logger ||= Logger.new('log/development.log')
+      @logger ||= Logger.new("log/#{ENV["STAGE"]}.log")
     end
   end
 end
-

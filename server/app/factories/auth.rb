@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Factories
   module Auth
     def self.generate(authorizer)

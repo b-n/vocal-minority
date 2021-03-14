@@ -1,10 +1,8 @@
-# frozen_string_literal: true
-
-require 'signet/oauth_2/client'
+require "signet/oauth_2/client"
 
 module Google
   class Auth
-    TOKENINFO_URI = 'https://oauth2.googleapis.com/tokeninfo'
+    TOKENINFO_URI = "https://oauth2.googleapis.com/tokeninfo"
 
     def auth_url
       client.authorization_uri
@@ -12,9 +10,8 @@ module Google
 
     def valid_auth_code?(code)
       client.code = code
-      response = client.fetch_access_token!
       !client.access_token.nil?
-    rescue Signet::AuthorizationError => e
+    rescue Signet::AuthorizationError => _
       false
     end
 
@@ -26,13 +23,13 @@ module Google
 
     def client
       @client ||= Signet::OAuth2::Client.new(
-        :authorization_uri => 'https://accounts.google.com/o/oauth2/auth',
-        :token_credential_uri => 'https://oauth2.googleapis.com/token',
-        :client_id => ENV['GOOGLE_CLIENT_ID'],
-        :client_secret => ENV['GOOGLE_CLIENT_SECRET'],
-        :scope => 'email profile',
-        :state => 'google',
-        :redirect_uri => ENV['AUTH_REDIRECT_URI'],
+        authorization_uri: "https://accounts.google.com/o/oauth2/auth",
+        token_credential_uri: "https://oauth2.googleapis.com/token",
+        client_id: ENV["GOOGLE_CLIENT_ID"],
+        client_secret: ENV["GOOGLE_CLIENT_SECRET"],
+        scope: "email profile",
+        state: "google",
+        redirect_uri: ENV["AUTH_REDIRECT_URI"]
       )
     end
   end

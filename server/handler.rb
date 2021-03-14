@@ -5,14 +5,13 @@ load "vendor/bundle/bundler/setup.rb"
 $LOAD_PATH.unshift(File.expand_path("lib", __dir__))
 $LOAD_PATH.unshift(File.expand_path("app", __dir__))
 
-require 'lib'
-require 'app'
+require "lib"
+require "app"
 
 # route the requests
-def auth_auth(event:, context:)
-  if Services::Auth.validate_JWT(token: event['authorizationToken'])
-    p 'authorised' 
-  end
+def auth_auth(event:, _context:)
+  return "authorised" if Services::Auth.validate_JWT(token: event["authorizationToken"])
+
   unauthorized
 end
 
@@ -24,21 +23,29 @@ def auth_urls(event:, context:)
   Controllers::Auth::Urls.new.get(event: event, context: context)
 end
 
-def tweet_get(event:, context:)
+def tweet_get(*)
   default_response
 end
 
-def tweet_post(event:, context:)
+def tweet_post(*)
   default_response
 end
 
-def tweet_pool_refresh(event:, context:)
+def tweet_pool_refresh(*)
   default_response
+end
+
+def debug(*)
+  client = Twitter::API::Client.new
+  {
+    statusCode: 200,
+    body: {message: client.test.to_json}.to_json
+  }
 end
 
 def default_response
   {
     statusCode: 200,
-    body: { message: 'lorem ipsum' }.to_json
+    body: {message: "lorem ipsum"}.to_json
   }
 end
